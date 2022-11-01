@@ -64,6 +64,9 @@ class StudyOptionsActivity : NavigationDrawerActivity(), StudyOptionsListener, C
             closeStudyOptions()
             return true
         }
+        if (item.itemId == R.id.action_undo) {
+            Timber.i("Undo - Activity")
+        }
         return super.onOptionsItemSelected(item)
     }
 

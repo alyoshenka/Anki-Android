@@ -22,27 +22,30 @@ import androidx.annotation.VisibleForTesting
 import androidx.appcompat.widget.TooltipCompat
 import com.ichi2.anki.ActionProviderCompat
 import com.ichi2.anki.R
+import timber.log.Timber
 
 /**
  * An Rtl version of a normal action view, where the drawable is mirrored
  */
 class RtlCompliantActionProvider(context: Context) : ActionProviderCompat(context) {
     @VisibleForTesting
-    val mActivity: Activity
+    val mActivity: Activity // always set to Activity -> so what happens when it needs a fragment?
 
     override fun onCreateActionView(forItem: MenuItem): View {
+        Timber.i("onCreateActionView: $forItem.title")
         val actionView = ImageButton(context, null, R.attr.actionButtonStyle)
         TooltipCompat.setTooltipText(actionView, forItem.title)
         forItem.icon?.let {
             it.isAutoMirrored = true
             actionView.setImageDrawable(it)
         }
-        actionView.id = R.id.action_undo
+        actionView.id = R.id.action_undo // why is this always set to undo? that seems like a bad for reusability
         actionView.setOnClickListener {
             if (!forItem.isEnabled) {
                 return@setOnClickListener
             }
             mActivity.onOptionsItemSelected(forItem)
+            Timber.i("$mActivity onOptionsItemSelected $forItem")
         }
         return actionView
     }
@@ -54,11 +57,14 @@ class RtlCompliantActionProvider(context: Context) : ActionProviderCompat(contex
          * @return The activity of the passed context
          */
         private fun unwrapContext(context: Context): Activity {
+            Timber.i("unwrapContext()")
             var unwrappedContext: Context? = context
             while (unwrappedContext !is Activity && unwrappedContext is ContextWrapper) {
                 unwrappedContext = unwrappedContext.baseContext
+                Timber.i("unwrappedContext is NOT Activity")
             }
             return if (unwrappedContext is Activity) {
+                Timber.i("unwrappedContext is Activity")
                 unwrappedContext
             } else {
                 throw ClassCastException("Passed context should be either an instanceof Activity or a ContextWrapper wrapping an Activity")
