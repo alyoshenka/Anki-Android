@@ -256,6 +256,7 @@ class FieldEditText : FixedEditText, NoteService.NoteField {
         get() = this.inputType and InputType.TYPE_TEXT_FLAG_CAP_SENTENCES == InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
 
     @KotlinCleanup("Use @Parcelize")
+    // Alexi looking at this one
     internal class SavedState : BaseSavedState {
         var ord = 0
 
