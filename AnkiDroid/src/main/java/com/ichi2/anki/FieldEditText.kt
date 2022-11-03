@@ -22,7 +22,6 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import android.os.LocaleList
-import android.os.Parcel
 import android.os.Parcelable
 import android.text.InputType
 import android.util.AttributeSet
@@ -45,6 +44,7 @@ import com.ichi2.utils.ClipboardUtil.getImageUri
 import com.ichi2.utils.ClipboardUtil.getPlainText
 import com.ichi2.utils.ClipboardUtil.hasImage
 import com.ichi2.utils.KotlinCleanup
+import kotlinx.parcelize.Parcelize
 import timber.log.Timber
 import java.util.*
 import kotlin.math.max
@@ -196,10 +196,11 @@ class FieldEditText : FixedEditText, NoteService.NoteField {
     }
 
     override fun onSaveInstanceState(): Parcelable? {
-        val state = super.onSaveInstanceState()
-        val savedState = SavedState(state)
-        savedState.ord = ord
-        return savedState
+        // val savedState = SavedState(state)
+        // savedState.ord = ord
+        val parcel = super.onSaveInstanceState()
+        // return savedState
+        return SavedState(parcel, ord)
     }
 
     override fun onTextContextMenuItem(id: Int): Boolean {
@@ -257,6 +258,19 @@ class FieldEditText : FixedEditText, NoteService.NoteField {
 
     @KotlinCleanup("Use @Parcelize")
     // Alexi looking at this one
+    // data class?
+    // no writeToParcel() or createFromParcel()
+    @Parcelize
+    internal class SavedState(val state: Parcelable?, val ord: Int) : BaseSavedState(state) {
+
+        companion object {
+            fun newArray(size: Int): Array<SavedState?> {
+                return arrayOfNulls(size)
+            }
+        }
+    }
+    /*
+
     internal class SavedState : BaseSavedState {
         var ord = 0
 
@@ -284,6 +298,8 @@ class FieldEditText : FixedEditText, NoteService.NoteField {
             }
         }
     }
+
+     */
 
     interface TextSelectionListener {
         fun onSelectionChanged(selStart: Int, selEnd: Int)
