@@ -196,11 +196,14 @@ class FieldEditText : FixedEditText, NoteService.NoteField {
     }
 
     override fun onSaveInstanceState(): Parcelable? {
+        val state = super.onSaveInstanceState()
         // val savedState = SavedState(state)
         // savedState.ord = ord
-        val parcel = super.onSaveInstanceState()
+
+        // seems to be doing the exact same thing, so I think we're good
+
         // return savedState
-        return SavedState(parcel, ord)
+        return SavedState(state, ord)
     }
 
     override fun onTextContextMenuItem(id: Int): Boolean {
@@ -264,6 +267,7 @@ class FieldEditText : FixedEditText, NoteService.NoteField {
     internal class SavedState(val state: Parcelable?, val ord: Int) : BaseSavedState(state) {
 
         companion object {
+            // Todo: CHECK THIS
             fun newArray(size: Int): Array<SavedState?> {
                 return arrayOfNulls(size)
             }
