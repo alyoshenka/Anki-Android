@@ -52,6 +52,8 @@ import kotlin.math.min
 
 // Alexi's test push
 
+// setSave(enabled)???
+
 class FieldEditText : FixedEditText, NoteService.NoteField {
     override var ord = 0
     private var mOrigBackground: Drawable? = null
@@ -261,6 +263,7 @@ class FieldEditText : FixedEditText, NoteService.NoteField {
 
     @KotlinCleanup("Use @Parcelize")
     // Alexi looking at this one
+
     // data class?
     // no writeToParcel() or createFromParcel()
     @Parcelize
