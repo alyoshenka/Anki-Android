@@ -199,12 +199,6 @@ class FieldEditText : FixedEditText, NoteService.NoteField {
 
     override fun onSaveInstanceState(): Parcelable? {
         val state = super.onSaveInstanceState()
-        // val savedState = SavedState(state)
-        // savedState.ord = ord
-
-        // seems to be doing the exact same thing, so I think we're good
-
-        // return savedState
         return SavedState(state, ord)
     }
 
@@ -261,52 +255,8 @@ class FieldEditText : FixedEditText, NoteService.NoteField {
     val isCapitalized: Boolean
         get() = this.inputType and InputType.TYPE_TEXT_FLAG_CAP_SENTENCES == InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
 
-    @KotlinCleanup("Use @Parcelize")
-    // Alexi looking at this one
-
-    // data class?
-    // no writeToParcel() or createFromParcel()
     @Parcelize
-    internal class SavedState(val state: Parcelable?, val ord: Int) : BaseSavedState(state) {
-
-        companion object {
-            // Todo: CHECK THIS
-            fun newArray(size: Int): Array<SavedState?> {
-                return arrayOfNulls(size)
-            }
-        }
-    }
-    /*
-
-    internal class SavedState : BaseSavedState {
-        var ord = 0
-
-        constructor(superState: Parcelable?) : super(superState)
-
-        override fun writeToParcel(out: Parcel, flags: Int) {
-            super.writeToParcel(out, flags)
-            out.writeInt(ord)
-        }
-
-        private constructor(source: Parcel) : super(source) {
-            ord = source.readInt()
-        }
-
-        companion object {
-            @JvmField // required field that makes Parcelables from a Parcel
-            val CREATOR: Parcelable.Creator<SavedState> = object : Parcelable.Creator<SavedState> {
-                override fun createFromParcel(source: Parcel): SavedState {
-                    return SavedState(source)
-                }
-
-                override fun newArray(size: Int): Array<SavedState?> {
-                    return arrayOfNulls(size)
-                }
-            }
-        }
-    }
-
-     */
+    internal class SavedState(val state: Parcelable?, val ord: Int) : BaseSavedState(state)
 
     interface TextSelectionListener {
         fun onSelectionChanged(selStart: Int, selEnd: Int)

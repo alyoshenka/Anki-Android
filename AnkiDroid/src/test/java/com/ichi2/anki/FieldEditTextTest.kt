@@ -15,7 +15,8 @@ class FieldEditTextTest {
 
     @Test
     fun verifySameInstanceStateAfterSaveAndReload() {
-        val dummyOrdValue = 5 // test is valid for any value != 0
+        val dummyOrdValue = 5
+        assertThat("dummy ord value must not be 0 for test validity", dummyOrdValue, not(0))
         val fieldEditText = FieldEditText(targetContext)
         fieldEditText.ord = dummyOrdValue
         val save = fieldEditText.onSaveInstanceState()
@@ -54,9 +55,9 @@ class FieldEditTextTest {
         fieldEditText.onRestoreInstanceState(save!!)
 
         val newFieldEditText = FieldEditText(targetContext)
-        assertThat("New object should not have ord initialized to originalOrdValue", newFieldEditText.ord, not(originalOrdValue))
+        assertThat("new object should not have ord initialized to originalOrdValue", newFieldEditText.ord, not(originalOrdValue))
 
         newFieldEditText.onRestoreInstanceState(save)
-        assertThat("New instance with the same context should have the same ord", newFieldEditText.ord, equalTo(originalOrdValue))
+        assertThat("new instance with the same context should have the same ord", newFieldEditText.ord, equalTo(originalOrdValue))
     }
 }
