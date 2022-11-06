@@ -52,6 +52,8 @@ import kotlin.math.min
 
 // Alexi's test push
 
+// setSave(enabled)???
+
 class FieldEditText : FixedEditText, NoteService.NoteField {
     override var ord = 0
     private var mOrigBackground: Drawable? = null
