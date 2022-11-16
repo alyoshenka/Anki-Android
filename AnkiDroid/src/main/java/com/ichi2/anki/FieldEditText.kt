@@ -70,32 +70,6 @@ class FieldEditText : FixedEditText, NoteService.NoteField {
         }
     }
 
-    /*
-        JAO @ 11/8
-
-        What's the idea behind removing the try/catch block?
-          - function will return a boolean
-            - true is the value of "disableExtendedTextUi"
-            - false is the value of "disableExtendedTextUi" OR caught exception
-          - are we expecting an exception?
-            - sp.getBoolean potentially throws a ClassCastException
-            - this will only happen if the "disableExtendedTextUi" shared preferences key
-              is of a non-boolean type. Will this ever happen?
-            -
-          - If we know not to expect this and this is the only source of the error,
-            could we just remove the block entirely?
-
-        Proposed:
-            private fun shouldDisableExtendedTextUi(): Boolean {
-                AnkiDroidApp.getSharedPrefs(this.context).let {
-                    return it.getBoolean("disableExtendedTextUi", false)
-                }
-                return false;
-            }
-
-          - Is my syntax right here?
-          - "return false" is listed as redundant
-    */
     @KotlinCleanup("Remove try-catch")
     private fun shouldDisableExtendedTextUi(): Boolean {
         return try {
@@ -107,31 +81,7 @@ class FieldEditText : FixedEditText, NoteService.NoteField {
         }
     }
 
-    /*
-        JAO @ 11/8
-
-        What's the best way to simplify this?
-          - android.editable.text could be null
-          - in the event that it is null, we don't want to access the toString()
-          - Kotlin doesn't have a ternary operator
-          - property is a val, so no setter is implied
-          - text comes from AppCompatEditText, which just calls EditText.getText()
-            - EditText.getText() already accounts for null, is this safe enough?
-
-         Proposed:
-
-         override val fieldText: String? get() = text!!.toString()
-
-           - Fairly certain we can assume it won't be null, so we can use a non-null assertion
-           - Should properties ever be one line, or is this not good style?
-    */
-    // override val fieldText: String? get() = text!!.toString()
-    @KotlinCleanup("Simplify")
-    override val fieldText: String?
-        get() {
-            val text = text ?: return null
-            return text.toString()
-        }
+    override val fieldText: String? get() = text?.toString()
 
     fun init() {
         try {
@@ -270,26 +220,6 @@ class FieldEditText : FixedEditText, NoteService.NoteField {
         return false
     }
 
-    /*
-        JAO @ 11/8
-
-            There are only two usages, and both are within this file. The usage in
-            onCreateInputConnection passes in a non-null value, but the value from
-            onTextContextMenuItem could potentially be null.
-
-            Looking at it again, onTextContextMenuItem hides its call behind an if-statement
-            that wouldn't execute the codeblock if there wasn't an image on the clipboard.
-            Could we then assume that the
-
-        Proposed:
-
-        private fun onImagePaste(imageUri: Uri): Boolean {
-            return mImageListener!!.onImagePaste(this, imageUri)
-        }
-
-        - we might also need to add a non-null assertion operator to onTextContextMenuItem
-
-     */
     @KotlinCleanup("Make param non-null")
     private fun onImagePaste(imageUri: Uri?): Boolean {
         return if (imageUri == null) {
