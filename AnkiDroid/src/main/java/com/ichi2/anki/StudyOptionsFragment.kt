@@ -37,9 +37,7 @@ import com.ichi2.anim.ActivityTransitionAnimation.slide
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.dialogs.customstudy.CustomStudyDialog
 import com.ichi2.anki.servicelayer.ComputeResult
-import com.ichi2.anki.servicelayer.UndoService.Undo
 import com.ichi2.anki.snackbar.showSnackbar
-import com.ichi2.annotations.NeedsTest
 import com.ichi2.async.CollectionTask.*
 import com.ichi2.async.TaskListener
 import com.ichi2.async.TaskManager
@@ -52,10 +50,9 @@ import com.ichi2.utils.FragmentFactoryUtils.instantiate
 import com.ichi2.utils.HtmlUtils.convertNewlinesToHtml
 import com.ichi2.utils.KotlinCleanup
 import kotlinx.coroutines.Job
-import net.ankiweb.rsdroid.BackendFactory
 import timber.log.Timber
 
-class StudyOptionsFragment : Fragment(), Toolbar.OnMenuItemClickListener {
+class StudyOptionsFragment : Fragment()/*, Toolbar.OnMenuItemClickListener*/ {
     /**
      * Preferences
      */
@@ -159,19 +156,19 @@ class StudyOptionsFragment : Fragment(), Toolbar.OnMenuItemClickListener {
         initAllContentViews(studyOptionsView)
         mToolbar = studyOptionsView.findViewById(R.id.studyOptionsToolbar)
         if (mToolbar != null) {
-            Timber.i("Not doing anything to the Toolbar")
-            // mToolbar!!.inflateMenu(R.menu.study_options_fragment)
-            // configureToolbar()
+            // Timber.i("Not doing anything to the Toolbar")
+
+            mToolbar!!.inflateMenu(R.menu.study_options_fragment)
+            configureToolbar()
         }
         refreshInterface(true)
-        // configureMenu(true)
         return studyOptionsView
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         Timber.i("onViewCreated()")
-        super.onViewCreated(view, savedInstanceState)
         setupMenu()
+        // super.onViewCreated(view, savedInstanceState)
     }
 
     private fun setupMenu() {
@@ -181,7 +178,7 @@ class StudyOptionsFragment : Fragment(), Toolbar.OnMenuItemClickListener {
                 override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
                     Timber.i("onCreateMenu()")
 
-                    // menu.clear() // ?
+                    menu.clear() // ?
                     menuInflater.inflate(R.menu.study_options_fragment, menu)
 
                     fun configureMenu(recur: Boolean) {
@@ -270,6 +267,7 @@ class StudyOptionsFragment : Fragment(), Toolbar.OnMenuItemClickListener {
             },
             viewLifecycleOwner, Lifecycle.State.RESUMED
         )
+        Timber.i("setupMenu() done")
     }
 
     override fun onDestroy() {
@@ -284,6 +282,8 @@ class StudyOptionsFragment : Fragment(), Toolbar.OnMenuItemClickListener {
         super.onResume()
         Timber.i("onResume()")
         refreshInterface(true)
+
+        setupMenu()
     }
 
     private fun closeStudyOptions(result: Int) {
@@ -363,7 +363,7 @@ class StudyOptionsFragment : Fragment(), Toolbar.OnMenuItemClickListener {
             openReviewer()
         }
     }
-
+/*
     override fun onMenuItemClick(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_undo -> {
@@ -431,6 +431,8 @@ class StudyOptionsFragment : Fragment(), Toolbar.OnMenuItemClickListener {
         }
     }
 
+ */
+
     suspend fun rebuildCram() {
         val result = requireActivity().withProgress(resources.getString(R.string.rebuild_filtered_deck)) {
             withCol {
@@ -461,6 +463,7 @@ class StudyOptionsFragment : Fragment(), Toolbar.OnMenuItemClickListener {
 
     // This will allow a maximum of one recur in order to workaround database closes
     // caused by sync on startup where this might be running then have the collection close
+    /*
     @NeedsTest("test whether the navigationIcon and navigationOnClickListener are set properly")
     private fun configureToolbarInternal(recur: Boolean) {
         Timber.i("configureToolbarInternal()")
@@ -527,6 +530,8 @@ class StudyOptionsFragment : Fragment(), Toolbar.OnMenuItemClickListener {
             }
         }
     }
+
+     */
 
     var onRequestReviewActivityResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
         Timber.i("StudyOptionsFragment::mOnRequestReviewActivityResult")
