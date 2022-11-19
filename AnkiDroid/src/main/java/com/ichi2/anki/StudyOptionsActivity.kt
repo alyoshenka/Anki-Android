@@ -57,7 +57,6 @@ class StudyOptionsActivity : NavigationDrawerActivity(), StudyOptionsListener, C
         get() = supportFragmentManager.findFragmentById(R.id.studyoptions_frame) as StudyOptionsFragment?
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        Timber.i("onOptionsItemSelected()")
         if (drawerToggle.onOptionsItemSelected(item)) {
             return true
         }

@@ -19,7 +19,10 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Spanned
 import android.text.method.LinkMovementMethod
-import android.view.*
+import android.view.LayoutInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import androidx.activity.result.ActivityResult
@@ -28,9 +31,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.Toolbar
 import androidx.core.text.HtmlCompat
-import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Lifecycle
 import com.ichi2.anim.ActivityTransitionAnimation
 import com.ichi2.anim.ActivityTransitionAnimation.slide
 import com.ichi2.anki.CollectionManager.withCol
@@ -38,6 +39,7 @@ import com.ichi2.anki.dialogs.customstudy.CustomStudyDialog
 import com.ichi2.anki.servicelayer.ComputeResult
 import com.ichi2.anki.servicelayer.Undo
 import com.ichi2.anki.snackbar.showSnackbar
+import com.ichi2.annotations.NeedsTest
 import com.ichi2.async.CollectionTask.*
 import com.ichi2.async.TaskListener
 import com.ichi2.async.TaskManager
@@ -141,11 +143,7 @@ class StudyOptionsFragment : Fragment(), Toolbar.OnMenuItemClickListener {
         }
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         Timber.i("onCreateView()")
         if (container == null) {
             // Currently in a layout without a container, so no reason to create our view.
@@ -164,110 +162,6 @@ class StudyOptionsFragment : Fragment(), Toolbar.OnMenuItemClickListener {
         return studyOptionsView
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        Timber.i("onViewCreated()")
-        super.onViewCreated(view, savedInstanceState)
-    }
-
-    private fun setupMenu() {
-        Timber.i("setupMenu()")
-        mToolbar!!.addMenuProvider( // menuhost
-            object : MenuProvider {
-                override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                    Timber.i("onCreateMenu()")
-
-                    menu.clear() // ?
-                    menuInflater.inflate(R.menu.study_options_fragment, menu)
-
-                    fun configureMenu(recur: Boolean) {
-                        Timber.i("configureMenu()")
-                        try {
-                            // Switch on or off rebuild/empty/custom study depending on whether or not filtered deck
-                            if (col != null && col!!.decks.isDyn(col!!.decks.selected())) {
-                                menu.findItem(R.id.action_rebuild).isVisible = true
-                                menu.findItem(R.id.action_empty).isVisible = true
-                                menu.findItem(R.id.action_custom_study).isVisible = false
-                                menu.findItem(R.id.action_deck_or_study_options).setTitle(R.string.menu__study_options)
-                            } else {
-                                menu.findItem(R.id.action_rebuild).isVisible = false
-                                menu.findItem(R.id.action_empty).isVisible = false
-                                menu.findItem(R.id.action_custom_study).isVisible = true
-                                menu.findItem(R.id.action_deck_or_study_options).setTitle(R.string.menu__deck_options)
-                            }
-                            // Don't show custom study icon if congrats shown
-                            if (mCurrentContentView == CONTENT_CONGRATS) {
-                                menu.findItem(R.id.action_custom_study).isVisible = false
-                            }
-                            // Switch on rename / delete / export if tablet layout
-                            if (mFragmented) {
-                                menu.findItem(R.id.action_rename).isVisible = true
-                                menu.findItem(R.id.action_delete).isVisible = true
-                                menu.findItem(R.id.action_export).isVisible = true
-                            } else {
-                                menu.findItem(R.id.action_rename).isVisible = false
-                                menu.findItem(R.id.action_delete).isVisible = false
-                                menu.findItem(R.id.action_export).isVisible = false
-                            }
-                            // Switch on or off unbury depending on if there are cards to unbury
-                            menu.findItem(R.id.action_unbury).isVisible = col != null && col!!.sched.haveBuried()
-                            // Switch on or off undo depending on whether undo is available
-                            if (col == null || !col!!.undoAvailable()) {
-                                menu.findItem(R.id.action_undo).isVisible = false
-                            } else {
-                                menu.findItem(R.id.action_undo).isVisible = true
-                                val res = AnkiDroidApp.appResources
-                                menu.findItem(R.id.action_undo).title =
-                                    res.getString(R.string.studyoptions_congrats_undo, col!!.undoName(res))
-                            }
-                            // Set the back button listener
-                            if (!mFragmented) {
-                                val icon =
-                                    AppCompatResources.getDrawable(requireContext(), R.drawable.ic_arrow_back_white)
-                                icon!!.isAutoMirrored = true
-                                mToolbar!!.navigationIcon = icon
-                                mToolbar!!.setNavigationOnClickListener {
-                                    (activity as AnkiActivity).finishWithAnimation(
-                                        ActivityTransitionAnimation.Direction.END
-                                    )
-                                }
-                            }
-                        } catch (e: IllegalStateException) {
-                            if (!CollectionHelper.instance.colIsOpen()) {
-                                if (recur) {
-                                    Timber.i(
-                                        e,
-                                        "Database closed while working. Probably auto-sync. Will re-try after sleep."
-                                    )
-                                    try {
-                                        Thread.sleep(1000)
-                                    } catch (ex: InterruptedException) {
-                                        Timber.i(
-                                            ex,
-                                            "Thread interrupted while waiting to retry. Likely unimportant."
-                                        )
-                                        Thread.currentThread().interrupt()
-                                    }
-                                    configureMenu(false)
-                                } else {
-                                    Timber.w(e, "Database closed while working. No re-tries left.")
-                                }
-                            }
-                        }
-                    }
-
-                    configureMenu(true)
-                }
-
-                override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-                    Timber.i("onMenuItemSelected()")
-                    return true
-                }
-            },
-            viewLifecycleOwner, Lifecycle.State.RESUMED
-        )
-        Timber.i("setupMenu() done")
-    }
-
     override fun onDestroy() {
         super.onDestroy()
         if (mFullNewCountThread != null) {
@@ -280,8 +174,6 @@ class StudyOptionsFragment : Fragment(), Toolbar.OnMenuItemClickListener {
         super.onResume()
         Timber.i("onResume()")
         refreshInterface(true)
-
-        setupMenu()
     }
 
     private fun closeStudyOptions(result: Int) {
@@ -381,6 +273,7 @@ class StudyOptionsFragment : Fragment(), Toolbar.OnMenuItemClickListener {
         Timber.i("onMenuItemClick - Toolbar")
         when (item.itemId) {
             R.id.action_undo -> {
+                Timber.i("StudyOptionsFragment:: Undo button pressed")
                 return undo()
             }
             R.id.action_deck_or_study_options -> {
@@ -457,13 +350,11 @@ class StudyOptionsFragment : Fragment(), Toolbar.OnMenuItemClickListener {
     }
 
     fun configureToolbar() {
-        Timber.i("Not configuring toolbar internal")
-        // configureToolbarInternal(true)
+        configureToolbarInternal(true)
     }
 
     // This will allow a maximum of one recur in order to workaround database closes
     // caused by sync on startup where this might be running then have the collection close
-    /*
     @NeedsTest("test whether the navigationIcon and navigationOnClickListener are set properly")
     private fun configureToolbarInternal(recur: Boolean) {
         Timber.i("configureToolbarInternal()")
@@ -530,8 +421,6 @@ class StudyOptionsFragment : Fragment(), Toolbar.OnMenuItemClickListener {
             }
         }
     }
-
-     */
 
     var onRequestReviewActivityResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
         Timber.i("StudyOptionsFragment::mOnRequestReviewActivityResult")
