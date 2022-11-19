@@ -522,13 +522,12 @@ open class AnkiActivity : AppCompatActivity, SimpleMessageDialogListener, Collec
      * @param message
      * @param reload flag which forces app to be restarted when true
      */
-    @KotlinCleanup("make message non-null")
+
     open fun showSimpleMessageDialog(message: String?, title: String = "", reload: Boolean = false) {
         val newFragment: AsyncDialogFragment = SimpleMessageDialog.newInstance(title, message, reload)
         showAsyncDialogFragment(newFragment)
     }
 
-    @KotlinCleanup("make non-null")
     fun showSimpleNotification(
         title: String,
         message: String?,
@@ -540,9 +539,10 @@ open class AnkiActivity : AppCompatActivity, SimpleMessageDialogListener, Collec
             .toInt() <= Preferences.PENDING_NOTIFICATIONS_ONLY
         ) {
             // Use the title as the ticker unless the title is simply "AnkiDroid"
-            var ticker: String? = title
-            if (title == resources.getString(R.string.app_name)) {
-                ticker = message
+            val ticker: String? = if (title == resources.getString(R.string.app_name)) {
+                message
+            } else {
+                title
             }
             // Build basic notification
             val builder = NotificationCompat.Builder(
