@@ -468,7 +468,6 @@ open class CardTemplateEditor : AnkiActivity(), DeckSelectionListener {
             (requireActivity() as MenuHost).addMenuProvider(
                 object : MenuProvider {
                     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                        Timber.i("onCreateMenu()")
                         menu.clear()
                         menuInflater.inflate(R.menu.card_template_editor, menu)
 

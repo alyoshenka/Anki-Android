@@ -16,6 +16,7 @@
 package com.ichi2.anki
 
 import android.os.Bundle
+import android.view.MenuItem
 import androidx.fragment.app.commit
 import com.ichi2.anim.ActivityTransitionAnimation
 import com.ichi2.anki.StudyOptionsFragment.StudyOptionsListener
@@ -55,7 +56,6 @@ class StudyOptionsActivity : NavigationDrawerActivity(), StudyOptionsListener, C
     private val currentFragment: StudyOptionsFragment?
         get() = supportFragmentManager.findFragmentById(R.id.studyoptions_frame) as StudyOptionsFragment?
 
-    /*
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         Timber.i("onOptionsItemSelected()")
         if (drawerToggle.onOptionsItemSelected(item)) {
@@ -66,12 +66,10 @@ class StudyOptionsActivity : NavigationDrawerActivity(), StudyOptionsListener, C
             return true
         }
         if (item.itemId == R.id.action_undo) {
-            Timber.i("Undo - Activity")
+            return currentFragment?.undo() ?: false
         }
         return super.onOptionsItemSelected(item)
     }
-
-     */
 
     private fun closeStudyOptions(result: Int = RESULT_OK) {
         // mCompat.invalidateOptionsMenu(this);

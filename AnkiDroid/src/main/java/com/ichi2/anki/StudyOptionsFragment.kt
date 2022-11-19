@@ -28,7 +28,6 @@ import androidx.annotation.VisibleForTesting
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.Toolbar
 import androidx.core.text.HtmlCompat
-import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
@@ -37,6 +36,7 @@ import com.ichi2.anim.ActivityTransitionAnimation.slide
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.dialogs.customstudy.CustomStudyDialog
 import com.ichi2.anki.servicelayer.ComputeResult
+import com.ichi2.anki.servicelayer.UndoService.Undo
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.async.CollectionTask.*
 import com.ichi2.async.TaskListener
@@ -50,9 +50,10 @@ import com.ichi2.utils.FragmentFactoryUtils.instantiate
 import com.ichi2.utils.HtmlUtils.convertNewlinesToHtml
 import com.ichi2.utils.KotlinCleanup
 import kotlinx.coroutines.Job
+import net.ankiweb.rsdroid.BackendFactory
 import timber.log.Timber
 
-class StudyOptionsFragment : Fragment()/*, Toolbar.OnMenuItemClickListener*/ {
+class StudyOptionsFragment : Fragment(), Toolbar.OnMenuItemClickListener {
     /**
      * Preferences
      */
@@ -156,8 +157,6 @@ class StudyOptionsFragment : Fragment()/*, Toolbar.OnMenuItemClickListener*/ {
         initAllContentViews(studyOptionsView)
         mToolbar = studyOptionsView.findViewById(R.id.studyOptionsToolbar)
         if (mToolbar != null) {
-            // Timber.i("Not doing anything to the Toolbar")
-
             mToolbar!!.inflateMenu(R.menu.study_options_fragment)
             configureToolbar()
         }
@@ -167,13 +166,12 @@ class StudyOptionsFragment : Fragment()/*, Toolbar.OnMenuItemClickListener*/ {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         Timber.i("onViewCreated()")
-        setupMenu()
-        // super.onViewCreated(view, savedInstanceState)
+        super.onViewCreated(view, savedInstanceState)
     }
 
     private fun setupMenu() {
         Timber.i("setupMenu()")
-        (requireActivity() as MenuHost).addMenuProvider(
+        mToolbar!!.addMenuProvider( // menuhost
             object : MenuProvider {
                 override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
                     Timber.i("onCreateMenu()")
@@ -363,23 +361,27 @@ class StudyOptionsFragment : Fragment()/*, Toolbar.OnMenuItemClickListener*/ {
             openReviewer()
         }
     }
-/*
+    fun undo(): Boolean {
+        Timber.i("StudyOptionsFragment:: Undo button pressed")
+        if (BackendFactory.defaultLegacySchema) {
+            Undo().runWithHandler(mUndoListener)
+        } else {
+            launchCatchingTask {
+                if (requireActivity().backendUndoAndShowPopup()) {
+                    openReviewer()
+                } else {
+                    Undo().runWithHandler(mUndoListener)
+                }
+            }
+        }
+        return true
+    }
+
     override fun onMenuItemClick(item: MenuItem): Boolean {
+        Timber.i("onMenuItemClick - Toolbar")
         when (item.itemId) {
             R.id.action_undo -> {
-                Timber.i("StudyOptionsFragment:: Undo button pressed")
-                if (BackendFactory.defaultLegacySchema) {
-                    Undo().runWithHandler(mUndoListener)
-                } else {
-                    launchCatchingTask {
-                        if (requireActivity().backendUndoAndShowPopup()) {
-                            openReviewer()
-                        } else {
-                            Undo().runWithHandler(mUndoListener)
-                        }
-                    }
-                }
-                return true
+                return undo()
             }
             R.id.action_deck_or_study_options -> {
                 Timber.i("StudyOptionsFragment:: Deck or study options button pressed")
@@ -430,8 +432,6 @@ class StudyOptionsFragment : Fragment()/*, Toolbar.OnMenuItemClickListener*/ {
             else -> return false
         }
     }
-
- */
 
     suspend fun rebuildCram() {
         val result = requireActivity().withProgress(resources.getString(R.string.rebuild_filtered_deck)) {
