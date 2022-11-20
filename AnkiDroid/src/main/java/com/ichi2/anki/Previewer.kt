@@ -215,11 +215,11 @@ class Previewer : AbstractFlashcardViewer() {
         Timber.i("which: $which")
         return when (which) {
             ViewerCommand.SHOW_PREV_CARD -> {
-                changePreviewedCard(true)
+                changePreviewedCard(false)
                 true
             }
             ViewerCommand.SHOW_NEXT_CARD -> {
-                changePreviewedCard(false)
+                changePreviewedCard(true)
                 true
             }
             else -> {
