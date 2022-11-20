@@ -1124,6 +1124,7 @@ open class Reviewer : AbstractFlashcardViewer() {
     }
 
     override fun executeCommand(which: ViewerCommand, fromGesture: Gesture?): Boolean {
+        Timber.i("which: $which")
         if (isControlBlocked && which !== ViewerCommand.EXIT) {
             return false
         }

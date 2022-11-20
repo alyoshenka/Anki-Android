@@ -212,6 +212,7 @@ class Previewer : AbstractFlashcardViewer() {
     }
 
     override fun executeCommand(which: ViewerCommand, fromGesture: Gesture?): Boolean {
+        Timber.i("which: $which")
         /* do nothing */
         return false
     }
@@ -236,6 +237,7 @@ class Previewer : AbstractFlashcardViewer() {
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     internal fun changePreviewedCard(nextCard: Boolean) {
+        Timber.i("change previewed card - nextCard: $nextCard")
         mIndex = if (nextCard) mIndex + 1 else mIndex - 1
         currentCard = col.getCard(mCardList[mIndex])
         displayCardQuestion()
