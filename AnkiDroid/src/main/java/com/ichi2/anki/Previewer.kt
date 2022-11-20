@@ -215,16 +215,14 @@ class Previewer : AbstractFlashcardViewer() {
         Timber.i("which: $which")
         return when (which) {
             ViewerCommand.SHOW_PREV_CARD -> {
-                changePreviewedCard(false)
+                tryChangePreviewedCard(false)
                 true
             }
             ViewerCommand.SHOW_NEXT_CARD -> {
-                changePreviewedCard(true)
+                tryChangePreviewedCard(true)
                 true
             }
-            else -> {
-                true
-            } // super??
+            else -> false // super??
         }
         /* do nothing */
         // return false
@@ -246,6 +244,17 @@ class Previewer : AbstractFlashcardViewer() {
     override fun onEditedNoteChanged() {
         super.onEditedNoteChanged()
         mNoteChanged = true
+    }
+
+    private fun tryChangePreviewedCard(nextCard: Boolean): Boolean {
+        val goalIndex = if (nextCard) mIndex + 1 else mIndex - 1
+        return if (goalIndex < 0 || goalIndex >= mCardList.size) {
+            Timber.i("There is no " + (if (nextCard) "next" else "previous") + " card")
+            false
+        } else {
+            changePreviewedCard(nextCard)
+            true
+        }
     }
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
