@@ -213,8 +213,21 @@ class Previewer : AbstractFlashcardViewer() {
 
     override fun executeCommand(which: ViewerCommand, fromGesture: Gesture?): Boolean {
         Timber.i("which: $which")
+        return when (which) {
+            ViewerCommand.SHOW_PREV_CARD -> {
+                changePreviewedCard(true)
+                true
+            }
+            ViewerCommand.SHOW_NEXT_CARD -> {
+                changePreviewedCard(false)
+                true
+            }
+            else -> {
+                true
+            } // super??
+        }
         /* do nothing */
-        return false
+        // return false
     }
 
     override fun performReload() {
