@@ -60,10 +60,6 @@ class StudyOptionsActivity : NavigationDrawerActivity(), StudyOptionsListener, C
         if (drawerToggle.onOptionsItemSelected(item)) {
             return true
         }
-        if (item.itemId == android.R.id.home) {
-            closeStudyOptions()
-            return true
-        }
         return super.onOptionsItemSelected(item)
     }
 
