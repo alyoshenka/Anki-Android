@@ -64,9 +64,6 @@ class StudyOptionsActivity : NavigationDrawerActivity(), StudyOptionsListener, C
             closeStudyOptions()
             return true
         }
-        if (item.itemId == R.id.action_undo) {
-            return currentFragment?.undo() ?: false
-        }
         return super.onOptionsItemSelected(item)
     }
 

@@ -255,27 +255,23 @@ class StudyOptionsFragment : Fragment(), Toolbar.OnMenuItemClickListener {
             openReviewer()
         }
     }
-    fun undo(): Boolean {
-        Timber.i("StudyOptionsFragment:: Undo button pressed")
-        if (BackendFactory.defaultLegacySchema) {
-            Undo().runWithHandler(mUndoListener)
-        } else {
-            launchCatchingTask {
-                if (requireActivity().backendUndoAndShowPopup()) {
-                    openReviewer()
-                } else {
-                    Undo().runWithHandler(mUndoListener)
-                }
-            }
-        }
-        return true
-    }
 
     override fun onMenuItemClick(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_undo -> {
                 Timber.i("StudyOptionsFragment:: Undo button pressed")
-                return undo()
+                if (BackendFactory.defaultLegacySchema) {
+                    Undo().runWithHandler(mUndoListener)
+                } else {
+                    launchCatchingTask {
+                        if (requireActivity().backendUndoAndShowPopup()) {
+                            openReviewer()
+                        } else {
+                            Undo().runWithHandler(mUndoListener)
+                        }
+                    }
+                }
+                return true
             }
             R.id.action_deck_or_study_options -> {
                 Timber.i("StudyOptionsFragment:: Deck or study options button pressed")
