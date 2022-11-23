@@ -70,8 +70,8 @@ enum class ViewerCommand(val resourceId: Int) {
     SHOW_HINT(R.string.gesture_show_hint),
     SHOW_ALL_HINTS(R.string.gesture_show_all_hints),
     ADD_NOTE(R.string.menu_add_note),
-    SHOW_NEXT_CARD(R.string.show_next_card),
-    SHOW_PREV_CARD(R.string.show_prev_card);
+    SHOW_NEXT_CARD(R.string.gesture_preview_next_card),
+    SHOW_PREV_CARD(R.string.gesture_preview_previous_card);
 
     companion object {
         val allDefaultBindings: List<MappableBinding>
