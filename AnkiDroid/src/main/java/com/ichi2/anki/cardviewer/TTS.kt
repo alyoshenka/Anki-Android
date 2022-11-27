@@ -27,6 +27,7 @@ import com.ichi2.libanki.Sound.SoundSide
 import com.ichi2.libanki.TTSTag
 import com.ichi2.libanki.Utils
 import com.ichi2.libanki.template.TemplateFilters
+import timber.log.Timber
 
 class TTS {
     @get:JvmName("isEnabled")
@@ -67,6 +68,7 @@ class TTS {
      * @param qa   The card question or card answer
      */
     fun selectTts(context: Context, card: Card, qa: SoundSide) {
+        Timber.i("TTS.kt TTS: selectTTS()")
         val textToRead = if (qa == SoundSide.QUESTION) card.q(true) else card.pureAnswer
         // get the text from the card
         ReadText.selectTts(

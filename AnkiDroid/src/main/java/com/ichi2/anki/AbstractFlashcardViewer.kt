@@ -1544,6 +1544,7 @@ abstract class AbstractFlashcardViewer :
      * Shows the dialogue for selecting TTS for the current card and cardside.
      */
     protected fun showSelectTtsDialogue() {
+        Timber.i("TTS: showSelectTTSDialog()")
         if (mTtsInitialized) {
             mTTS.selectTts(this, currentCard!!, if (displayAnswer) SoundSide.ANSWER else SoundSide.QUESTION)
         }

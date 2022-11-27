@@ -25,6 +25,7 @@ import android.view.WindowManager.BadTokenException
 import androidx.annotation.VisibleForTesting
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.list.listItems
+import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.UIUtils.showThemedToast
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.annotations.NeedsTest
@@ -33,6 +34,7 @@ import com.ichi2.libanki.Sound.SoundSide
 import com.ichi2.libanki.TTSTag
 import com.ichi2.utils.HandlerUtils.postDelayedOnNewHandler
 import com.ichi2.utils.iconAttr
+import kotlinx.coroutines.runBlocking
 import timber.log.Timber
 import java.lang.ref.WeakReference
 import java.util.*
@@ -91,6 +93,52 @@ object ReadText {
     @SuppressLint("CheckResult")
     @NeedsTest("ensure languages are sorted alphabetically in the dialog")
     fun selectTts(text: String?, did: DeckId, ord: Int, qa: SoundSide?) {
+        Timber.i("TTS: selectTTS()")
+
+        // get all subdecks of deck
+        suspend fun getThing() {
+            Timber.i("TTS getThing()")
+            Timber.i("TTS did: $did")
+            val dn = withCol {
+                decks.name(did)
+            }
+            Timber.i("TTS deck name: $dn")
+            val children = CollectionManager.withCol {
+                decks.cids(did, true)
+            }
+            val subdeckName = withCol {
+                decks.getSubdeckName(did, dn)
+            }
+            Timber.i("TTS subdeck name: $subdeckName")
+            children.forEach { cid ->
+                Timber.i("TTS cid: $cid")
+                val deckName = CollectionManager.withCol {
+                    decks.name(cid)
+                }
+                Timber.i("TTS deck name: $deckName")
+                val another = withCol {
+                    decks.getSubdeckName(cid, null)
+                }
+                Timber.i("TTS another try: $another")
+            }
+            val otherChildren = withCol {
+                decks.children(did)
+            }
+            otherChildren.forEach { child ->
+                Timber.i("TTS others ${child.key}: ${child.value}")
+                val sn = withCol {
+                    decks.name(child.value)
+                }
+                Timber.i("TTS subdeck name: $sn")
+            }
+        }
+        fun over() = runBlocking {
+            Timber.i("TTS running getThing()")
+            getThing()
+        }
+        Timber.i("TTS running over()")
+        over()
+
         // TODO: Consolidate with ReadText.readCardSide
         textToSpeak = text
         questionAnswer = qa
@@ -121,6 +169,7 @@ object ReadText {
                 .listItems(items = localeMappings.map { it.second }) { _: MaterialDialog, index: Int, _: CharSequence ->
                     val locale = localeMappings[index].first
                     Timber.d("ReadText.selectTts() user chose locale '%s'", locale)
+                    Timber.i("TTS: Here is where you'd want the option to set the language for all subdecks")
                     MetaDB.storeLanguage(flashCardViewer.get()!!, mDid, mOrd, questionAnswer!!, locale)
                     if (locale != NO_TTS) {
                         speak(textToSpeak, locale, TextToSpeech.QUEUE_FLUSH)
@@ -131,6 +180,21 @@ object ReadText {
         }
         // Show the dialog after short delay so that user gets a chance to preview the card
         showDialogAfterDelay(dialog, 500)
+    }
+
+    fun promptForSubdecks(text: String?, did: DeckId, ord: Int, qa: SoundSide?) {
+        Timber.i("TTS promptForSubdecks $text $did $ord")
+
+        val dialog = MaterialDialog(flashCardViewer.get()!!)
+
+        textToSpeak = text
+        questionAnswer = qa
+        mDid = did
+        mOrd = ord
+
+        dialog.title(R.string.select_locale_title)
+
+        showDialogAfterDelay(dialog, 100)
     }
 
     internal fun showDialogAfterDelay(dialog: MaterialDialog, delayMillis: Int) {
@@ -232,6 +296,7 @@ object ReadText {
             )
         }
         selectTts(textToSpeak, mDid, mOrd, questionAnswer)
+        promptForSubdecks(textToSpeak, mDid, mOrd, questionAnswer)
         return true
     }
 
@@ -245,6 +310,7 @@ object ReadText {
     }
 
     fun initializeTts(context: Context, listener: ReadTextListener) {
+        Timber.i("TTS: initializeTTS()")
         // Store weak reference to Activity to prevent memory leak
         flashCardViewer = WeakReference(context)
         mCompletionListener = listener
