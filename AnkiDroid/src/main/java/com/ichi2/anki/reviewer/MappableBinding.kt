@@ -93,6 +93,7 @@ class MappableBinding(val binding: Binding, private val screen: Screen) {
         abstract fun toDisplayString(context: Context, binding: Binding): String
         abstract fun screenEquals(otherScreen: Screen): Boolean
 
+        // could this just be abstractflashcardviewer??
         class Reviewer(val side: CardSide) : Screen('r') {
             override fun toPreferenceString(binding: Binding): String? {
                 if (!binding.isValid) {

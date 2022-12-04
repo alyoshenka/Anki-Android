@@ -144,13 +144,13 @@ class Preferences : AnkiActivity(), SearchPreferenceResultListener {
          * on [ControlsSettingsFragment.addAllControlPreferencesToCategory],
          * so they should be added programmatically to the search index as well.
          */
+        // todo
         for (command in ViewerCommand.values()) {
             searchConfig.indexItem()
                 .withTitle(getString(command.resourceId))
                 .withKey(command.preferenceKey)
                 .withResId(R.xml.preferences_controls)
                 .addBreadcrumb(getString(R.string.pref_cat_controls))
-                .addBreadcrumb(getString(R.string.controls_main_category))
         }
 
         // Some preferences and categories are only shown conditionally,
