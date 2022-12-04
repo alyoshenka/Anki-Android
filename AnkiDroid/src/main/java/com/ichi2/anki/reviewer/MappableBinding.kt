@@ -14,7 +14,7 @@
  *  this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ichi2.anki.reviewer
+package com.ichi2.anki.reviewer // todo: cardviewer?
 
 import android.content.Context
 import android.content.SharedPreferences

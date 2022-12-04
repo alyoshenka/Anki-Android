@@ -28,7 +28,9 @@ class ControlsSettingsFragment : SettingsFragment() {
         get() = "prefs.controls"
 
     override fun initSubscreen() {
+        // Reviewer-specific commands
         val commandMappingCategoryReviewer = requirePreference<PreferenceCategory>(R.string.controls_command_mapping_cat_key_reviewer)
+        // Previewer-specific commands
         val commandMappingCategoryPreviewer = requirePreference<PreferenceCategory>(R.string.controls_command_mapping_cat_key_previewer)
         addAllControlPreferencesToCategory(commandMappingCategoryReviewer, ViewerCommand.reviewerCommands)
         addAllControlPreferencesToCategory(commandMappingCategoryPreviewer, ViewerCommand.previewerCommands)
